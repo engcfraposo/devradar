@@ -18,12 +18,12 @@ module.exports = {
                         type: 'Point',
                         coordinates: [ longitude , latitude ],
                     },
-                    $maxDistance: 1000000000,
+                    $maxDistance: 10000,
                 },
             },
         });
        
-
+        
         return response.json({devs})
     }
     
