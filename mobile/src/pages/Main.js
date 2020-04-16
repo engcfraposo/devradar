@@ -7,7 +7,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { MaterialIcons } from '@expo/vector-icons'
 
 import api from '.././services/Api'
-import {connect, disconnect} from '.././services/Socket'
+import {connect, disconnect, subscribeToNewDevs} from '.././services/Socket'
 
 
 export default function Main() {
@@ -48,7 +48,12 @@ export default function Main() {
 
   }, []);
 
+  useEffect(() => {
+    subscribeToNewDevs(dev => setDevs([...devs, dev]));
+  }, [devs]);
+
   function setupWebsocket(){
+    disconnect();
 
     const { latitude, longitude } = currentRegion; 
 
