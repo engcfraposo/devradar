@@ -40,8 +40,11 @@ module.exports = {
             techs : techsArray,
             location 
         });
+        
+        
 
-        }
+
+        };
         
         
         return response.json(dev)
