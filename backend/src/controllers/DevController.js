@@ -1,57 +1,51 @@
-const axios = require('axios');
-const Dev = require('../models/Dev');
+import axios from "axios";
+import Dev from "../models/Dev";
 
-const parseStringAsArray = require('../utils/parseStringAsArray');
-const {findConnections, sendMessage} = require('../websocket');
+import parseStringAsArray from "../utils/parseStringAsArray";
+import { findConnections, sendMessage } from "../websocket";
 
-module.exports = {
-    async index(request, response) {
-        const  devs = await Dev.find();
-        return response.json(devs)
-    },
-    
-    
-    
-    async store(request, response) {
-        const {github_username, techs, latitude, longitude} = request.body;
+export default {
+  async index(request, response) {
+    const devs = await Dev.find();
+    return response.json(devs);
+  },
 
-        let dev = await Dev.findOne({ github_username });
+  async store(request, response) {
+    const { github_username, techs, latitude, longitude } = request.body;
 
-        if (!dev){
-            const apiResponse = await axios.get(`https://api.github.com/users/${github_username}`)
+    let dev = await Dev.findOne({ github_username });
 
-        const { login, avatar_url, html_url, bio, } = apiResponse.data;
+    if (!dev) {
+      const apiResponse = await axios.get(
+        `https://api.github.com/users/${github_username}`
+      );
 
-        const techsArray = parseStringAsArray(techs);
+      const { login, avatar_url, html_url, bio } = apiResponse.data;
 
-                
-        const location = {
-            type: 'Point',
-            coordinates: [longitude, latitude],
-            
-        };
+      const techsArray = parseStringAsArray(techs);
 
-        
-        dev = await Dev.create({
-            github_username,
-            name : login,
-            avatar_url,
-            html_url,
-            bio,
-            techs : techsArray,
-            location 
-        });
-        
+      const location = {
+        type: "Point",
+        coordinates: [longitude, latitude],
+      };
 
+      dev = await Dev.create({
+        github_username,
+        name: login,
+        avatar_url,
+        html_url,
+        bio,
+        techs: techsArray,
+        location,
+      });
 
-            const sendSocketMessageTo = findConnections(
-                { latitude, longitude },
-                techsArray,
-            )
-            sendMessage(sendSocketMessageTo, 'new-dev', dev)
-        };
-        
-        
-        return response.json(dev)
+      const sendSocketMessageTo = findConnections(
+        { latitude, longitude },
+        techsArray
+      );
+      sendMessage(sendSocketMessageTo, "new-dev", dev);
     }
-}
+
+    return response.json(dev);
+  },
+};
